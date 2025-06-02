@@ -77,7 +77,6 @@ O script pode ser executado diretamente sem erros.
 - **JDBC (Java Database Connectivity)**
 - **PostgreSQL**
 - **SQL**
-- (Opcional) **HTML/CSS/JS** (se houver interface adicional)
 
 ---
 
