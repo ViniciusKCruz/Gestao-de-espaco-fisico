@@ -55,8 +55,6 @@ O banco de dados está estruturado com as seguintes tabelas:
 
 O modelo segue a **terceira forma normal (3FN)** para evitar redundâncias e inconsistências.
 
-> 📎 Ver diagrama físico anexado no projeto (formato PNG/JPG).
-
 ---
 
 ## 💾 Scripts SQL
