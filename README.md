@@ -26,7 +26,6 @@ Este projeto tem como objetivo o desenvolvimento de um **sistema de gestão de r
 - Avaliação de solicitações (Aprovação/Rejeição) por gestores.
 - Registro de auditoria com ações dos usuários.
 - Histórico completo de reservas e avaliações.
-- Evita reservas duplicadas no mesmo espaço, data e horário.
 
 ---
 
