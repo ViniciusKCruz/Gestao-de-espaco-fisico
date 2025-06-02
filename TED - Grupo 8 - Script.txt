@@ -1,0 +1,152 @@
+CREATE DATABASE gestao_de_espaco_fisico;
+
+-- Deletar tabelas caso já existam
+DROP TABLE IF EXISTS auditoria;
+DROP TABLE IF EXISTS usuarios;
+DROP TABLE IF EXISTS solicitacoes;
+DROP TABLE IF EXISTS gestores;
+DROP TABLE IF EXISTS espacos;
+DROP TABLE IF EXISTS solicitantes;
+
+-- Tabela de Solicitantes
+CREATE TABLE solicitantes (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    telefone VARCHAR(15) NOT NULL
+);
+
+-- Tabela de Espaços Físicos
+CREATE TABLE espacos (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    localizacao VARCHAR(150) NOT NULL,
+    capacidade INTEGER NOT NULL,
+    equipamentos_incluidos TEXT,
+    metragem INTEGER
+);
+
+-- Tabela de Gestores
+CREATE TABLE gestores (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL
+);
+
+-- Tabela de Solicitações de Reserva
+CREATE TABLE solicitacoes (
+    id SERIAL PRIMARY KEY,
+    solicitante_id INTEGER REFERENCES solicitantes(id),
+    espaco_id INTEGER REFERENCES espacos(id),
+    data DATE NOT NULL,
+    hora TIME NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDENTE',
+    justificativa TEXT
+);
+
+-- Tabela de Usuários do Sistema (para controle de acesso e perfis)
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha VARCHAR(100) NOT NULL,
+    perfil VARCHAR(20) NOT NULL CHECK (perfil IN ('SOLICITANTE', 'GESTOR', 'ADMIN'))
+);
+
+-- Tabela de Auditoria (ações do sistema)
+CREATE TABLE auditoria (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER REFERENCES usuarios(id),
+    acao VARCHAR(100) NOT NULL,
+    data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    detalhes TEXT
+);
+
+-- Inserção de dados exemplo para testar o sistema
+
+-- Solicitantes
+INSERT INTO solicitantes (nome, email, telefone) VALUES 
+('João Silva', 'joao.silva@email.com', '(11) 99999-9999'),
+('Joana Mendes', 'joana.mendes@email.com', '(11) 99999-9999'),
+('Clara Silva', 'clara.silva@email.com', '(11) 99999-9999'),
+('Claudio Ferreira', 'lucas.ferreira@email.com', '(21) 98888-7777'),
+('Ana Paula', 'ana.paula@email.com', '(31) 97777-6666'),
+('Marcos Vinicius', 'marcos.vinicius@email.com', '(41) 96666-5555'),
+('Fernanda Costa', 'fernanda.costa@email.com', '(51) 95555-4444');
+
+-- Espaços Físicos
+INSERT INTO espacos (nome, localizacao, capacidade, equipamentos_incluidos, metragem) VALUES 
+('Laboratório', 'Bloco B', 150, 'Microscópio, Pipeta, Tubo de Ensaio, Balança, Erlenmeyer', 120),
+('Estacionamento', 'Área externa', 1000, 'Nenhum', 1000),
+('Sala de Aula', 'Bloco C', 50, 'Mesas, Cadeiras, Lousa, Caneta, Microfone, Computador, Projetor', 80),
+('Sala de Reunião', 'Bloco D', 70, 'Mesa, Cadeiras, TV, Microfone', 70),
+('Auditório', 'Bloco E', 200, 'Cadeiras, Cortina, Computador, Projetor, Microfone', 250),
+('Sala de Videoconferência', 'Bloco F', 65, 'Computador, Mesa, Cadeira, Luz, Câmera', 60),
+('Clínica Escola', 'Bloco G', 60, 'Curativos, Remédio, Faixa de Imobilização, Maca, Cadeira', 90),
+('Pavilhão de Aula', 'Bloco H', 70, 'Livros, Quadro, Lousa, Caneta', 85),
+('Centro de Esporte', 'Bloco I', 150, 'Bolas de Futebol, Basquete, Vôlei, Handebol, Cones, Bomba de Ar', 500);
+
+-- Gestores
+INSERT INTO gestores (nome, email) VALUES 
+('Maria Souza', 'maria.souza@email.com');
+
+-- Usuários do sistema
+INSERT INTO usuarios (nome, email, senha, perfil) VALUES 
+('João Silva', 'joao.silva@email.com', 'senha123', 'SOLICITANTE'),
+('Joana Mendes', 'joana.mendes@email.com', 'senha456', 'SOLICITANTE'),
+('Clara Silva', 'clara.silva@email.com', 'senha789', 'SOLICITANTE'),
+('Maria Souza', 'maria.souza@email.com', 'senhaadmin', 'GESTOR'),
+('Carlos Admin', 'admin@instituicao.com', 'admin123', 'ADMIN');
+
+-- Auditoria
+INSERT INTO auditoria (usuario_id, acao, detalhes) VALUES 
+(1, 'LOGIN', 'Usuário João Silva realizou login no sistema'),
+(4, 'APROVOU_SOLICITACAO', 'Gestor Maria Souza aprovou solicitação de uso do auditório'),
+(5, 'CRIACAO_ESPACO', 'Administrador criou novo espaço: Biblioteca Interativa');
+
+-- Inserção de solicitações de reserva
+INSERT INTO solicitacoes (solicitante_id, espaco_id, data, hora, status, justificativa) VALUES
+(1, 5, '2025-06-05', '14:00', 'PENDENTE', 'Evento de apresentação de projeto final'),
+(2, 3, '2025-06-06', '10:00', 'APROVADO', 'Aula de reforço de matemática'),
+(3, 1, '2025-06-07', '09:00', 'REJEITADO', 'Treinamento técnico – uso do laboratório');
+
+-- O que o sistema deve apresentar:
+
+-- Consulta de todas as solicitações
+SELECT * FROM solicitacoes;
+
+-- Consultar solicitantes
+SELECT id, nome, localizacao, capacidade, metragem, equipamentos_incluidos
+FROM espacos;
+
+-- Consultar solicitações por solicitante
+SELECT s.id, e.nome AS espaco, s.data, s.hora, s.status, s.justificativa
+FROM solicitacoes s
+JOIN espacos e ON s.espaco_id = e.id
+WHERE s.solicitante_id = 1 -- Mude o id de acordo com o solicitante
+ORDER BY s.data DESC;
+
+-- Consultas para achar solicitações pendentes
+SELECT s.id, sol.nome AS solicitante, e.nome AS espaco, s.data, s.hora, s.justificativa
+FROM solicitacoes s
+JOIN solicitantes sol ON s.solicitante_id = sol.id
+JOIN espacos e ON s.espaco_id = e.id
+WHERE s.status = 'PENDENTE'
+ORDER BY s.data, s.hora;
+
+-- Histórico de todas solicitações avaliadas
+SELECT s.id, sol.nome AS solicitante, e.nome AS espaco, s.data, s.hora, s.status, s.justificativa
+FROM solicitacoes s
+JOIN solicitantes sol ON s.solicitante_id = sol.id
+JOIN espacos e ON s.espaco_id = e.id
+WHERE s.status IN ('APROVADO', 'REJEITADO')
+ORDER BY s.data DESC;
+
+-- Consulta para adm
+SELECT id, nome, email, perfil FROM usuarios;
+
+-- Ver o log de auditoria (últimas ações no sistema)
+SELECT a.id, u.nome AS usuario, u.perfil, a.acao, a.data_hora, a.detalhes
+FROM auditoria a
+JOIN usuarios u ON a.usuario_id = u.id
+ORDER BY a.data_hora DESC;
