@@ -1,7 +1,9 @@
 # 📌 Sistema de Gestão de Espaço Físico
 
 Este projeto tem como objetivo o desenvolvimento de um **sistema de gestão de reservas de espaços físicos** em uma instituição, permitindo que usuários (solicitantes) façam solicitações de uso de espaços como laboratórios, salas de aula, auditórios, entre outros, e que essas solicitações sejam avaliadas por gestores.
+## OBS:
 
+Caso o código apresente erro na IDE utilizada (tanto o Eclipse quanto o Intellij), recomendamos que instale o JDBC driver do sql, segue o link a seguir (Versão: 42.7.2): https://jdbc.postgresql.org/download/
 ---
 
 ## 📋 Sumário
